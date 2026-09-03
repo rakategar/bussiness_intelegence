@@ -1,0 +1,407 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Dashboard BI — token desain
+   Sumber: DESIGN.md bagian 2. Jangan pakai warna default Tailwind di komponen;
+   semua warna lewat token di bawah ini.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Netral — dasar dingin, bukan krem */
+  --ink: #14181d;
+  --ink-muted: #5a6673;
+  --ink-faint: #8a94a0;
+  --surface: #f6f7f9;
+  --panel: #ffffff;
+  --panel-sunken: #eef1f4;
+  --line: #e0e4e9;
+  --line-strong: #c6cdd5;
+
+  /* Brand — teal baja */
+  --brand: #1b4d57;
+  --brand-hover: #16404a;
+  --brand-soft: #e4eef0;
+  --brand-on: #ffffff;
+
+  /* Status kesegaran — palet paling penting di produk ini */
+  --fresh: #2f7d4f;
+  --fresh-bg: #e7f3ec;
+  --watch: #c08400;
+  --watch-bg: #fbf2dc;
+  --critical: #d9541e;
+  --critical-bg: #fcebe2;
+  --expired: #b02418;
+  --expired-bg: #fae6e4;
+
+  /* Semantik finansial */
+  --gain: #2f7d4f;
+  --loss: #b02418;
+
+  /* Rel identitas peran */
+  --role-stock: #3e8a93;
+  --role-admin: #6b5ca5;
+  --role-owner: #1b4d57;
+
+  /* Urutan warna grafik */
+  --viz-1: #1b4d57;
+  --viz-2: #3e8a93;
+  --viz-3: #7fb8ae;
+  --viz-4: #c08400;
+  --viz-5: #d9541e;
+  --viz-6: #6b5ca5;
+  --viz-7: #a8b2bc;
+
+  --focus-ring: #3e8a93;
+
+  /* Bentuk — radius berbeda menurut fungsi, bukan seragam */
+  --radius-input: 4px;
+  --radius-panel: 8px;
+  --radius-modal: 12px;
+  --radius-pill: 999px;
+
+  /* Bayangan — hanya untuk yang benar-benar melayang. Kartu tidak berbayang. */
+  --shadow-dropdown: 0 4px 12px rgba(20, 24, 29, 0.1);
+  --shadow-modal: 0 16px 40px rgba(20, 24, 29, 0.18);
+
+  --font-ui: var(--font-archivo), system-ui, -apple-system, sans-serif;
+  --font-num: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ink: #e8ecf0;
+  --ink-muted: #9aa5b1;
+  --ink-faint: #6b7683;
+  --surface: #101418;
+  --panel: #171c21;
+  --panel-sunken: #1e242a;
+  --line: #2a3138;
+  --line-strong: #3a434c;
+
+  --brand: #4e9ba6;
+  --brand-hover: #5fadb8;
+  --brand-soft: #163034;
+  --brand-on: #0b1113;
+
+  --fresh: #4fae77;
+  --fresh-bg: #14281d;
+  --watch: #dba537;
+  --watch-bg: #2b220e;
+  --critical: #e87848;
+  --critical-bg: #2e1a11;
+  --expired: #d95f52;
+  --expired-bg: #2e1512;
+
+  --gain: #4fae77;
+  --loss: #d95f52;
+
+  --role-stock: #4e9ba6;
+  --role-admin: #8878c4;
+  --role-owner: #4e9ba6;
+
+  --viz-1: #4e9ba6;
+  --viz-2: #7fb8ae;
+  --viz-3: #a9d5cb;
+  --viz-4: #dba537;
+  --viz-5: #e87848;
+  --viz-6: #8878c4;
+  --viz-7: #7d8894;
+}
+
+/* Jembatan token → utility Tailwind v4 (bg-panel, text-ink-muted, dst.) */
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-panel-sunken: var(--panel-sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-on: var(--brand-on);
+
+  --color-fresh: var(--fresh);
+  --color-fresh-bg: var(--fresh-bg);
+  --color-watch: var(--watch);
+  --color-watch-bg: var(--watch-bg);
+  --color-critical: var(--critical);
+  --color-critical-bg: var(--critical-bg);
+  --color-expired: var(--expired);
+  --color-expired-bg: var(--expired-bg);
+
+  --color-gain: var(--gain);
+  --color-loss: var(--loss);
+
+  --color-role-stock: var(--role-stock);
+  --color-role-admin: var(--role-admin);
+  --color-role-owner: var(--role-owner);
+
+  --color-viz-1: var(--viz-1);
+  --color-viz-2: var(--viz-2);
+  --color-viz-3: var(--viz-3);
+  --color-viz-4: var(--viz-4);
+  --color-viz-5: var(--viz-5);
+  --color-viz-6: var(--viz-6);
+  --color-viz-7: var(--viz-7);
+
+  --color-focus-ring: var(--focus-ring);
+
+  --radius-input: var(--radius-input);
+  --radius-panel: var(--radius-panel);
+  --radius-modal: var(--radius-modal);
+
+  --font-ui: var(--font-ui);
+  --font-num: var(--font-num);
+}
+
+/* --------------------------------------------------------------------------
+   Dasar
+   -------------------------------------------------------------------------- */
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 21px;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Cincin fokus terlihat di mana-mana — DESIGN.md bagian 6 */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--brand-soft);
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   Skala tipe — DESIGN.md bagian 2.2
+   -------------------------------------------------------------------------- */
+
+.t-display {
+  font-family: var(--font-num);
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.t-h1 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.t-h2 {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+.t-h3 {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+.t-body {
+  font-size: 14px;
+  line-height: 21px;
+  font-weight: 400;
+}
+.t-body-strong {
+  font-size: 14px;
+  line-height: 21px;
+  font-weight: 500;
+}
+.t-small {
+  font-size: 13px;
+  line-height: 19px;
+  font-weight: 400;
+}
+.t-caption {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+.t-num-lg {
+  font-family: var(--font-num);
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.t-num-md {
+  font-family: var(--font-num);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Paragraf teks dibatasi 68 karakter */
+.prose-width {
+  max-width: 68ch;
+}
+
+/* --------------------------------------------------------------------------
+   Gerak — DESIGN.md bagian 5. Sedikit, dan hanya sebagai respons tindakan.
+   -------------------------------------------------------------------------- */
+
+@keyframes dbi-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes dbi-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dbi-highlight {
+  0%,
+  60% {
+    background-color: var(--fresh-bg);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes dbi-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes dbi-shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes dbi-dot-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.anim-rise {
+  animation: dbi-rise 180ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+.anim-fade {
+  animation: dbi-fade 180ms ease-out both;
+}
+.anim-highlight {
+  animation: dbi-highlight 1200ms ease-out both;
+}
+.anim-shake {
+  animation: dbi-shake 120ms ease-in-out 2;
+}
+.anim-dot-in {
+  animation: dbi-dot-in 260ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+/* Kerangka abu-abu saat memuat, bukan spinner */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--panel-sunken) 25%,
+    color-mix(in srgb, var(--panel-sunken) 60%, var(--panel)) 50%,
+    var(--panel-sunken) 75%
+  );
+  background-size: 200% 100%;
+  animation: dbi-shimmer 1400ms linear infinite;
+  border-radius: var(--radius-input);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .skeleton {
+    animation: none;
+    background: var(--panel-sunken);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Scrollbar tipis, biar tabel padat tidak kehilangan ruang
+   -------------------------------------------------------------------------- */
+
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.scroll-thin::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 3px solid var(--panel);
+}
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Recharts: garis grid tipis, tanpa outline default */
+.recharts-cartesian-grid line {
+  stroke: var(--line);
+}
+.recharts-surface:focus {
+  outline: none;
+}
