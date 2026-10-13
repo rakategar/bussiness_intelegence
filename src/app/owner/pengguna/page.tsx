@@ -19,12 +19,12 @@ import type { Peran } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const HAK_PERAN: Record<Peran, string> = {
-  stock:
-    "Kelola bahan, restock, waste, dan peringatan kadaluarsa. Tidak bisa melihat laporan laba.",
+  logistik:
+    "Melihat tugas pengiriman dan hanya mengubah status pengiriman.",
   admin:
-    "Kelola menu, resep, dan impor penjualan. Melihat analitik terbatas.",
+    "Menambah, mengubah, dan menghapus data anggaran, pengeluaran, penggunaan bahan, penjualan, dan pengiriman.",
   owner:
-    "Akses penuh termasuk laporan laba rugi, forecasting, dan kelola pengguna.",
+    "Hanya melihat: rangkuman bulanan, anggaran, pengeluaran, pengiriman, penjualan, forecast, dan cost control.",
 };
 
 export default function HalamanPengguna() {
@@ -110,7 +110,7 @@ export default function HalamanPengguna() {
                   }}
                   aria-label={`Peran ${p.namaLengkap}`}
                 >
-                  {(["stock", "admin", "owner"] as Peran[]).map((r) => (
+                  {(["admin", "owner", "logistik"] as Peran[]).map((r) => (
                     <option key={r} value={r}>
                       {LABEL_PERAN[r]}
                     </option>
@@ -168,7 +168,7 @@ function DialogUndang({
   onKirim: (email: string, peran: Peran) => void;
 }) {
   const [email, setEmail] = React.useState("");
-  const [peran, setPeran] = React.useState<Peran>("stock");
+  const [peran, setPeran] = React.useState<Peran>("logistik");
   const sah = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
 
   return (
@@ -215,7 +215,7 @@ function DialogUndang({
               onChange={(e) => setPeran(e.target.value as Peran)}
               className="h-10 w-full text-[14px]"
             >
-              {(["stock", "admin", "owner"] as Peran[]).map((r) => (
+              {(["admin", "owner", "logistik"] as Peran[]).map((r) => (
                 <option key={r} value={r}>
                   {LABEL_PERAN[r]}
                 </option>

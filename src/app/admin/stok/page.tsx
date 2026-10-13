@@ -20,14 +20,13 @@ import { GAYA_STATUS, LABEL_STATUS_RESTOCK, URUTAN_STATUS } from "@/lib/status";
 import {
   formatAngka,
   formatQty,
-  formatRupiah,
   formatRupiahRingkas,
   formatTanggalPendek,
 } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { StatusKesegaran } from "@/lib/types";
 
-export default function BerandaStock() {
+export default function RingkasanStok() {
   const data = React.useMemo(() => {
     const stok = semuaStok();
     const berisiko = semuaBatchBerisiko();
@@ -47,10 +46,10 @@ export default function BerandaStock() {
   return (
     <div className="space-y-4">
       <PageHeader
-        judul="Beranda Stock"
+        judul="Ringkasan stok"
         keterangan="Apa yang harus dikerjakan hari ini."
         aksi={
-          <Link href="/stock/restock?baru=1">
+          <Link href="/admin/stok/restock?baru=1">
             <Tombol varian="utama" ukuran="sm">
               <Plus size={14} strokeWidth={1.75} />
               Restock baru
@@ -96,7 +95,7 @@ export default function BerandaStock() {
           keterangan="Diurutkan dari yang paling mendesak."
           aksi={
             <Link
-              href="/stock/kadaluarsa"
+              href="/admin/stok/kadaluarsa"
               className="t-caption text-brand hover:underline"
             >
               Lihat semua ▸
@@ -174,7 +173,7 @@ export default function BerandaStock() {
           judul="Restock terakhir"
           aksi={
             <Link
-              href="/stock/restock"
+              href="/admin/stok/restock"
               className="t-caption text-brand hover:underline"
             >
               Lihat semua ▸
@@ -283,7 +282,7 @@ function KartuPerluPerhatian({
             Batch dengan sisa 7 hari atau kurang.
           </p>
         </div>
-        <Link href="/stock/kadaluarsa">
+        <Link href="/admin/stok/kadaluarsa">
           <Tombol ukuran="sm">
             Lihat daftar
             <ArrowRight size={13} strokeWidth={1.75} />
@@ -334,7 +333,7 @@ function KartuPerluPerhatian({
           </span>
         ))}
         <span className="t-caption ml-auto text-ink-faint">
-          {formatRupiah(nilaiRisiko)} dari total batch aktif
+          {berisiko.length} batch aktif seluruhnya
         </span>
       </div>
     </Panel>

@@ -18,9 +18,12 @@ export interface AngkaRingkas {
   label: string;
   nilai: number;
   format: (n: number) => string;
-  delta: number;
+  /** Kosongkan kalau tidak ada pembanding periode lalu yang sah. */
+  delta?: number;
   jenisDelta?: "persen" | "pp";
   terbalik?: boolean;
+  /** Ditampilkan menggantikan delta. */
+  catatan?: string;
 }
 
 /**
@@ -92,12 +95,16 @@ export function KartuPenilaian({
                 className="num text-[19px] font-semibold leading-6 tracking-[-0.01em] text-ink sm:text-[20px]"
               />
             </p>
-            <Delta
-              nilai={a.delta}
-              jenis={a.jenisDelta}
-              terbalik={a.terbalik}
-              className="mt-1"
-            />
+            {a.delta !== undefined ? (
+              <Delta
+                nilai={a.delta}
+                jenis={a.jenisDelta}
+                terbalik={a.terbalik}
+                className="mt-1"
+              />
+            ) : (
+              <p className="t-caption mt-1 text-ink-faint">{a.catatan}</p>
+            )}
           </div>
         ))}
       </div>

@@ -40,7 +40,7 @@
   --loss: #b02418;
 
   /* Rel identitas peran */
-  --role-stock: #3e8a93;
+  --role-logistik: #3e8a93;
   --role-admin: #6b5ca5;
   --role-owner: #1b4d57;
 
@@ -98,7 +98,7 @@
   --gain: #4fae77;
   --loss: #d95f52;
 
-  --role-stock: #4e9ba6;
+  --role-logistik: #4e9ba6;
   --role-admin: #8878c4;
   --role-owner: #4e9ba6;
 
@@ -139,7 +139,7 @@
   --color-gain: var(--gain);
   --color-loss: var(--loss);
 
-  --color-role-stock: var(--role-stock);
+  --color-role-logistik: var(--role-logistik);
   --color-role-admin: var(--role-admin);
   --color-role-owner: var(--role-owner);
 

@@ -20,9 +20,9 @@ Akun demo (kata sandi apa pun, minimal 8 karakter):
 
 | Email | Peran |
 |---|---|
-| `andi@dashboardbi.id` | Owner |
-| `budi@dashboardbi.id` | Admin |
-| `rina@dashboardbi.id` | Stock |
+| `andi@dashboardbi.id` | Pemilik Usaha — hanya lihat |
+| `budi@dashboardbi.id` | Admin Operasional — tambah, ubah, hapus data |
+| `rina@dashboardbi.id` | Karyawan Logistik — hanya ubah status pengiriman |
 
 ## Stack
 
@@ -39,21 +39,29 @@ src/
   app/
     masuk/                 halaman login
     403/                   penolakan akses yang menjelaskan sebabnya
-    stock/                 modul Stock  — bahan, restock, kadaluarsa, waste
-    admin/                 modul Admin  — menu & resep, penjualan, impor
-    owner/                 modul Owner  — analitik, proyeksi, laporan, pengguna
+    logistik/              Karyawan Logistik — tugas & status pengiriman
+    admin/                 Admin Operasional — anggaran, pengeluaran, penggunaan
+                           bahan, penjualan, tren, forecast, pengiriman,
+                           menu & resep, stok (stok/), impor
+    owner/                 Pemilik Usaha — rangkuman, anggaran, pengeluaran,
+                           pengiriman, penjualan, forecast, cost control
     api/analisis-ai/       Route Handler yang memanggil Gemini (server-only)
   components/
     app/                   rangka aplikasi, sesi, navigasi, notifikasi
     charts/                grafik Recharts + bingkai "Lihat sebagai tabel"
-    panels/                panel AI, wizard impor, dialog waste, kartu penilaian
+    panels/                panel AI, wizard impor, dialog waste, kartu penilaian,
+                           halaman-data (CRUD generik + akses), impor-tabel
+                           (impor Excel reusable), modul-operasional, modul-analitik
     ui/                    StatusBadge, KpiCard, DataTable, EmptyState, dll.
   lib/
     data/katalog.ts        katalog bahan, menu, resep, pemasok
     data/seed.ts           pembangkit data contoh yang deterministik
     data/queries.ts        padanan view di PRD 7.3, dihitung di memori
+    data/operasional.ts    cabang, anggaran, pengeluaran, penggunaan, pengiriman,
+                           store useKoleksi, cost control, forecast mingguan + MAE
     forecast.ts            mesin baseline statistik (Lapisan 1)
     import/parser.ts       parser Excel restock & penjualan
+    import/skema.ts        skema kolom + validasi impor (format, struktur, isi)
     format.ts              format angka, rupiah, tanggal, minggu (id-ID)
     status.ts              ambang kesegaran, kuadran, label
 ```

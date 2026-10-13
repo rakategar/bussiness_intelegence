@@ -1,10 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Plus, TriangleAlert, Upload } from "lucide-react";
+import { Pencil, Plus, Trash2, TriangleAlert, Upload } from "lucide-react";
 
 import { DataTable, type Kolom } from "@/components/ui/data-table";
 import { ImportWizard } from "@/components/panels/import-wizard";
+import { Laci, Modal } from "@/components/panels/halaman-data";
+import { idBaru, useKoleksi } from "@/lib/data/operasional";
 import {
   Isian,
   Label,
@@ -13,12 +15,14 @@ import {
   Rupiah,
   Tombol,
 } from "@/components/ui/primitives";
-import { menuPerId, penjualanMingguan } from "@/lib/data/queries";
+import { menuPerId } from "@/lib/data/queries";
 import { menu, mingguan } from "@/lib/data/seed";
 import {
   formatAngka,
   formatRentang,
+  formatTanggal,
   keIsoTanggal,
+  tambahHari,
   labelMinggu,
 } from "@/lib/format";
 import type { CatatanPenjualan } from "@/lib/types";
@@ -28,6 +32,11 @@ export default function HalamanPenjualan() {
   const [manualBuka, setManualBuka] = React.useState(false);
   const [filter, setFilter] = React.useState<Record<string, string>>({});
   const [kabar, setKabar] = React.useState<string | null>(null);
+  const [detail, setDetail] = React.useState<CatatanPenjualan | null>(null);
+  const [ubah, setUbah] = React.useState<CatatanPenjualan | null>(null);
+  const [hapus, setHapus] = React.useState<CatatanPenjualan | null>(null);
+  const koleksi = useKoleksi("penjualan");
+  const penjualanMingguan = koleksi.data;
 
   const data = React.useMemo(
     () =>
@@ -36,7 +45,7 @@ export default function HalamanPenjualan() {
           (!filter.periode || p.periodeMulai === filter.periode) &&
           (!filter.menu || p.menuId === filter.menu),
       ),
-    [filter],
+    [filter, penjualanMingguan],
   );
 
   // Peringatan periode bolong: minggu yang ada di rentang tapi tanpa data.
@@ -46,7 +55,7 @@ export default function HalamanPenjualan() {
       .slice(0, -1)
       .filter((s) => !adaData.has(keIsoTanggal(s)))
       .map((s) => labelMinggu(s));
-  }, []);
+  }, [penjualanMingguan]);
 
   const kolom: Kolom<CatatanPenjualan>[] = [
     {
@@ -101,6 +110,31 @@ export default function HalamanPenjualan() {
       angka: true,
       sel: (p) => <Rupiah nilai={p.qtyTerjual * p.hargaSaatItu} />,
       urut: (p) => p.qtyTerjual * p.hargaSaatItu,
+    },
+    {
+      kunci: "aksi",
+      judul: "",
+      lebar: "84px",
+      sel: (p) => (
+        <div className="flex justify-end gap-0.5" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => setUbah(p)}
+            className="flex h-7 w-7 items-center justify-center rounded-input text-ink-muted hover:bg-panel-sunken hover:text-ink"
+            aria-label="Ubah penjualan"
+            title="Ubah"
+          >
+            <Pencil size={14} strokeWidth={1.5} />
+          </button>
+          <button
+            onClick={() => setHapus(p)}
+            className="flex h-7 w-7 items-center justify-center rounded-input text-ink-muted hover:bg-expired-bg hover:text-expired"
+            aria-label="Hapus penjualan"
+            title="Hapus"
+          >
+            <Trash2 size={14} strokeWidth={1.5} />
+          </button>
+        </div>
+      ),
     },
   ];
 
@@ -180,6 +214,8 @@ export default function HalamanPenjualan() {
         ]}
         nilaiFilter={filter}
         onUbahFilter={(k, v) => setFilter((f) => ({ ...f, [k]: v }))}
+        onKlikBaris={setDetail}
+        barisTerpilih={(p) => p.id === detail?.id}
         kartuMobile={(p) => (
           <div>
             <div className="flex items-start justify-between gap-2">
@@ -211,13 +247,154 @@ export default function HalamanPenjualan() {
       {manualBuka ? (
         <FormManual
           onTutup={() => setManualBuka(false)}
-          onSimpan={(nama, qty) => {
+          onSimpan={(menuId, periode, qty) => {
+            const m = menuPerId.get(menuId)!;
+            const nama = m.nama;
+            koleksi.tambah([
+              {
+                id: idBaru("sale"),
+                menuId,
+                periodeMulai: periode,
+                periodeSelesai: keIsoTanggal(tambahHari(periode, 6)),
+                granularitas: "weekly",
+                qtyTerjual: qty,
+                hargaSaatItu: m.hargaJual,
+              },
+            ]);
             setManualBuka(false);
             setKabar(`Penjualan ${nama} sebanyak ${formatAngka(qty)} porsi tersimpan.`);
           }}
         />
       ) : null}
+
+      {detail ? (
+        <Laci judul="Detail penjualan" onTutup={() => setDetail(null)}>
+          <dl className="divide-y divide-line text-[13px]">
+            {[
+              ["Tanggal transaksi", `${formatTanggal(detail.periodeMulai)} – ${formatTanggal(detail.periodeSelesai)}`],
+              ["Produk", menuPerId.get(detail.menuId)?.nama ?? "—"],
+              ["SKU", menuPerId.get(detail.menuId)?.sku ?? "—"],
+              ["Jumlah", `${formatAngka(detail.qtyTerjual)} porsi`],
+            ].map(([k, v]) => (
+              <div key={k} className="flex justify-between gap-4 py-2">
+                <dt className="text-ink-muted">{k}</dt>
+                <dd className="text-right text-ink">{v}</dd>
+              </div>
+            ))}
+            <div className="flex justify-between gap-4 py-2">
+              <dt className="text-ink-muted">Harga</dt>
+              <dd><Rupiah nilai={detail.hargaSaatItu} /></dd>
+            </div>
+            <div className="flex justify-between gap-4 py-2">
+              <dt className="text-ink-muted">Pendapatan</dt>
+              <dd><Rupiah nilai={detail.qtyTerjual * detail.hargaSaatItu} /></dd>
+            </div>
+          </dl>
+          <div className="mt-4 flex gap-2">
+            <Tombol ukuran="sm" onClick={() => setUbah(detail)}>
+              <Pencil size={14} strokeWidth={1.75} />
+              Ubah
+            </Tombol>
+            <Tombol varian="bahaya" ukuran="sm" onClick={() => setHapus(detail)}>
+              <Trash2 size={14} strokeWidth={1.75} />
+              Hapus
+            </Tombol>
+          </div>
+        </Laci>
+      ) : null}
+
+      {ubah ? (
+        <FormUbah
+          baris={ubah}
+          onTutup={() => setUbah(null)}
+          onSimpan={(baru) => {
+            koleksi.ubah(baru);
+            if (detail?.id === baru.id) setDetail(baru);
+            setUbah(null);
+            setKabar("Perubahan data penjualan tersimpan.");
+          }}
+        />
+      ) : null}
+
+      {hapus ? (
+        <Modal judul="Hapus data penjualan ini?" onTutup={() => setHapus(null)}>
+          <p className="t-small text-ink-muted">
+            {menuPerId.get(hapus.menuId)?.nama} ·{" "}
+            {formatRentang(hapus.periodeMulai, hapus.periodeSelesai)}. Data yang
+            dihapus ikut hilang dari tren dan forecast.
+          </p>
+          <div className="mt-4 flex justify-end gap-2">
+            <Tombol ukuran="sm" onClick={() => setHapus(null)}>
+              Batal
+            </Tombol>
+            <Tombol
+              varian="bahaya"
+              ukuran="sm"
+              onClick={() => {
+                koleksi.hapus(hapus.id);
+                if (detail?.id === hapus.id) setDetail(null);
+                setHapus(null);
+                setKabar("Data penjualan dihapus.");
+              }}
+            >
+              Hapus
+            </Tombol>
+          </div>
+        </Modal>
+      ) : null}
     </div>
+  );
+}
+
+function FormUbah({
+  baris,
+  onTutup,
+  onSimpan,
+}: {
+  baris: CatatanPenjualan;
+  onTutup: () => void;
+  onSimpan: (baru: CatatanPenjualan) => void;
+}) {
+  const [qty, setQty] = React.useState(String(baris.qtyTerjual));
+  const [harga, setHarga] = React.useState(String(baris.hargaSaatItu));
+  const q = Number(qty);
+  const h = Number(harga);
+  const galat =
+    qty === "" || !Number.isInteger(q) || q < 0
+      ? "Qty harus bilangan bulat ≥ 0."
+      : harga === "" || !Number.isFinite(h) || h <= 0
+        ? "Harga harus lebih dari 0."
+        : null;
+
+  return (
+    <Modal judul="Ubah data penjualan" onTutup={onTutup}>
+      <p className="t-caption mb-3 text-ink-muted">
+        {menuPerId.get(baris.menuId)?.nama} ·{" "}
+        {formatRentang(baris.periodeMulai, baris.periodeSelesai)}
+      </p>
+      <div className="space-y-3">
+        <div>
+          <Label htmlFor="u-qty" wajib>Qty terjual</Label>
+          <Isian id="u-qty" type="number" min={0} value={qty} onChange={(e) => setQty(e.target.value)} />
+        </div>
+        <div>
+          <Label htmlFor="u-harga" wajib>Harga (Rp)</Label>
+          <Isian id="u-harga" type="number" min={1} value={harga} onChange={(e) => setHarga(e.target.value)} />
+        </div>
+        {galat ? <p role="alert" className="t-caption text-expired">{galat}</p> : null}
+      </div>
+      <div className="mt-4 flex justify-end gap-2">
+        <Tombol ukuran="sm" onClick={onTutup}>Batal</Tombol>
+        <Tombol
+          varian="utama"
+          ukuran="sm"
+          disabled={Boolean(galat)}
+          onClick={() => onSimpan({ ...baris, qtyTerjual: q, hargaSaatItu: h })}
+        >
+          Simpan
+        </Tombol>
+      </div>
+    </Modal>
   );
 }
 
@@ -226,7 +403,7 @@ function FormManual({
   onSimpan,
 }: {
   onTutup: () => void;
-  onSimpan: (nama: string, qty: number) => void;
+  onSimpan: (menuId: string, periode: string, qty: number) => void;
 }) {
   const [menuId, setMenuId] = React.useState(menu[0].id);
   const [periode, setPeriode] = React.useState(
@@ -322,7 +499,7 @@ function FormManual({
           <Tombol
             varian="utama"
             disabled={angka <= 0}
-            onClick={() => onSimpan(m.nama, angka)}
+            onClick={() => onSimpan(m.id, periode, angka)}
           >
             Simpan
           </Tombol>

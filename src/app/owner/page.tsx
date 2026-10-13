@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Download, RefreshCw } from "lucide-react";
 
@@ -9,11 +8,14 @@ import {
   GrafikDonatKategori,
   GrafikPendapatanHpp,
   LegendaKategori,
-  MatriksKuadran,
 } from "@/components/charts";
 import { ChartFrame, TabelSetara } from "@/components/charts/chart-frame";
 import { KartuPenilaian } from "@/components/panels/kartu-penilaian";
 import { PanelAi } from "@/components/panels/panel-ai";
+import {
+  RangkumanBulanan,
+  RingkasanOperasional,
+} from "@/components/panels/modul-analitik";
 import { Panel, PanelHeader, Tombol } from "@/components/ui/primitives";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -25,7 +27,6 @@ import {
 import {
   komposisiKategori,
   konsumsiUntukTabel,
-  medianKuadran,
   penilaianMinggu,
   pnlMingguan,
   profitabilitas,
@@ -35,9 +36,6 @@ import {
 } from "@/lib/data/queries";
 import {
   LABEL_KATEGORI_MENU,
-  LABEL_KUADRAN,
-  PENJELASAN_KUADRAN,
-  WARNA_KUADRAN,
   gayaMargin,
 } from "@/lib/status";
 import {
@@ -49,11 +47,10 @@ import {
   type PilihanPeriode,
 } from "@/lib/periode";
 import { perubahanPersen } from "@/lib/utils";
-import type { KategoriMenu, Kuadran } from "@/lib/types";
+import type { KategoriMenu } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export default function BerandaOwner() {
-  const router = useRouter();
   const [periode, setPeriode] = React.useState<PilihanPeriode>("minggu-ini");
 
   const data = React.useMemo(() => {
@@ -67,7 +64,6 @@ export default function BerandaOwner() {
       ini,
       lalu,
       prof,
-      med: medianKuadran(prof),
       pnl: pnlMingguan(12),
       kategori: komposisiKategori(r),
       konsumsi: konsumsiUntukTabel(r),
@@ -98,10 +94,12 @@ export default function BerandaOwner() {
       jenisDelta: "pp" as const,
     },
     {
+      // Tidak ada snapshot stok periode lalu, jadi tidak ada delta yang jujur
+      // untuk ditampilkan. Yang relevan justru berapa bagian yang berisiko.
       label: "Nilai stok",
       nilai: data.nilaiStok,
       format: (n: number) => formatRupiahRingkas(n),
-      delta: 3.0,
+      catatan: `${formatRupiahRingkas(data.nilaiRisiko)} berisiko kadaluarsa`,
     },
   ];
 
@@ -112,13 +110,11 @@ export default function BerandaOwner() {
 
   const bahanTeratas = data.konsumsi.slice(0, 15);
 
-  const perKuadran = (k: Kuadran) =>
-    data.prof.filter(
-      (p) => p.kuadran === k && p.punyaResep && p.qtyTerjual > 0,
-    );
-
   return (
     <div className="space-y-4">
+      <RingkasanOperasional dasar="/owner" />
+      <RangkumanBulanan />
+
       {/* --- Bilah kendali --- */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex flex-wrap items-center gap-1 rounded-input bg-panel-sunken p-1">
@@ -209,75 +205,6 @@ export default function BerandaOwner() {
             </div>
           </div>
         </ChartFrame>
-      </div>
-
-      {/* --- Matriks kuadran --- */}
-      <ChartFrame
-        judul="Peta posisi menu"
-        keterangan="Pembagi ada di median volume dan median margin, bukan di nol."
-        tinggi={360}
-        tabel={
-          <TabelSetara
-            kepala={["Menu", "Qty", "Margin %", "Kontribusi", "Kuadran"]}
-            baris={data.prof
-              .filter((p) => p.punyaResep && p.qtyTerjual > 0)
-              .sort((a, b) => b.totalKontribusi - a.totalKontribusi)
-              .map((p) => [
-                p.menu.nama,
-                formatAngka(p.qtyTerjual),
-                formatPersen(p.marginPersen),
-                formatRupiah(p.totalKontribusi),
-                LABEL_KUADRAN[p.kuadran],
-              ])}
-          />
-        }
-      >
-        <MatriksKuadran
-          data={data.prof}
-          medianQty={data.med.qty}
-          medianMargin={data.med.margin}
-          onKlikMenu={(id) => router.push(`/owner/menu?menu=${id}`)}
-        />
-      </ChartFrame>
-
-      {/* Di layar sempit, titik terlalu kecil untuk disentuh — sediakan
-          daftar teks per kuadran di bawah grafiknya. */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:hidden">
-        {(["bintang", "teka-teki", "kuda-beban", "anjing"] as Kuadran[]).map(
-          (k) => {
-            const isi = perKuadran(k);
-            return (
-              <Panel key={k} className="p-3">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ background: WARNA_KUADRAN[k] }}
-                  />
-                  <h3 className="t-h3 text-ink">{LABEL_KUADRAN[k]}</h3>
-                  <span className="num t-caption ml-auto text-ink-faint">
-                    {isi.length} menu
-                  </span>
-                </div>
-                <p className="t-caption mt-0.5 text-ink-muted">
-                  {PENJELASAN_KUADRAN[k]}
-                </p>
-                <ul className="mt-2 space-y-1">
-                  {isi.slice(0, 5).map((p) => (
-                    <li
-                      key={p.menu.id}
-                      className="flex items-center gap-2 text-[13px]"
-                    >
-                      <span className="truncate text-ink">{p.menu.nama}</span>
-                      <span className="num ml-auto shrink-0 text-ink-muted">
-                        {formatPersen(p.marginPersen)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </Panel>
-            );
-          },
-        )}
       </div>
 
       {/* --- Panel AI --- */}

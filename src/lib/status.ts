@@ -124,9 +124,20 @@ export const WARNA_KATEGORI_MENU: Record<KategoriMenu, string> = {
 };
 
 export const LABEL_PERAN = {
-  stock: "Stock",
-  admin: "Admin",
-  owner: "Owner",
+  logistik: "Karyawan Logistik",
+  admin: "Admin Operasional",
+  owner: "Pemilik Usaha",
+} as const;
+
+export const LABEL_STATUS_PENGIRIMAN = {
+  dijadwalkan: "Dijadwalkan",
+  dikirim: "Dalam perjalanan",
+  diterima: "Diterima",
+} as const;
+
+export const LABEL_KATEGORI_ANGGARAN = {
+  bahan: "Bahan baku",
+  logistik: "Logistik",
 } as const;
 
 export const LABEL_ALASAN_WASTE = {

@@ -26,7 +26,7 @@ interface IsiSesi {
 const Konteks = React.createContext<IsiSesi | null>(null);
 
 export const BERANDA_PERAN: Record<Peran, string> = {
-  stock: "/stock",
+  logistik: "/logistik",
   admin: "/admin",
   owner: "/owner",
 };

@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatRupiah } from "@/lib/format";
+import { formatRupiah, keIsoTanggal } from "@/lib/format";
 import {
   menuTanpaResep,
   risikoKadaluarsa,
@@ -12,6 +12,8 @@ import {
   totalNilaiRisiko,
 } from "@/lib/data/queries";
 import type { Peran } from "@/lib/types";
+import { HARI_INI } from "@/lib/data/seed";
+import { SEED } from "@/lib/data/operasional";
 
 interface Butir {
   id: string;
@@ -24,7 +26,7 @@ interface Butir {
 function butirUntuk(peran: Peran): Butir[] {
   const daftar: Butir[] = [];
 
-  if (peran === "stock" || peran === "owner") {
+  if (peran === "owner") {
     const kritis = risikoKadaluarsa(3);
     if (kritis.length > 0) {
       daftar.push({
@@ -33,7 +35,7 @@ function butirUntuk(peran: Peran): Butir[] {
         detail: `Sisa 3 hari atau kurang. Total ${formatRupiah(
           kritis.reduce((t, r) => t + r.nilaiRisiko, 0),
         )} berisiko.`,
-        href: peran === "stock" ? "/stock/kadaluarsa" : "/owner/bahan",
+        href: "/owner/bahan",
         nada: "kritis",
       });
     }
@@ -44,7 +46,7 @@ function butirUntuk(peran: Peran): Butir[] {
         id: "stok-menipis",
         judul: `${menipis.length} bahan di bawah titik pesan ulang`,
         detail: "Sisa hari lebih pendek dari lead time pemasok.",
-        href: peran === "stock" ? "/stock/bahan" : "/owner/bahan",
+        href: "/owner/bahan",
         nada: "waspada",
       });
     }
@@ -56,6 +58,22 @@ function butirUntuk(peran: Peran): Butir[] {
         detail: `${formatRupiah(totalNilaiRisiko())} dalam 7 hari ke depan.`,
         href: "/owner/bahan",
         nada: "info",
+      });
+    }
+  }
+
+  if (peran === "logistik") {
+    const hariIni = keIsoTanggal(HARI_INI);
+    const hari = SEED.pengiriman.filter(
+      (p) => p.tanggal === hariIni && p.status !== "diterima",
+    );
+    if (hari.length > 0) {
+      daftar.push({
+        id: "kirim-hari-ini",
+        judul: `${hari.length} pengiriman dijadwalkan hari ini`,
+        detail: "Perbarui statusnya setelah kiriman berangkat dan diterima.",
+        href: "/logistik/pengiriman",
+        nada: "waspada",
       });
     }
   }

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { angkaRingkas } from "@/lib/format";
 
 /* -------------------------------------------------------------------------
    Panel — kartu dibatasi garis, tanpa bayangan (DESIGN.md 2.3)
@@ -261,7 +262,7 @@ export function Rupiah({
   desimal?: number;
 }) {
   const teks = ringkas
-    ? angkaRingkasLokal(nilai)
+    ? angkaRingkas(nilai)
     : new Intl.NumberFormat("id-ID", {
         minimumFractionDigits: desimal,
         maximumFractionDigits: desimal,
@@ -272,19 +273,6 @@ export function Rupiah({
       {teks}
     </span>
   );
-}
-
-function angkaRingkasLokal(nilai: number): string {
-  const f = (n: number, d: number) =>
-    new Intl.NumberFormat("id-ID", {
-      minimumFractionDigits: d,
-      maximumFractionDigits: d,
-    }).format(n);
-  const abs = Math.abs(nilai);
-  if (abs >= 1_000_000_000) return `${f(nilai / 1_000_000_000, 1)} M`;
-  if (abs >= 1_000_000) return `${f(nilai / 1_000_000, 1)} jt`;
-  if (abs >= 1_000) return `${f(nilai / 1_000, 0)}k`;
-  return f(nilai, 0);
 }
 
 /* -------------------------------------------------------------------------

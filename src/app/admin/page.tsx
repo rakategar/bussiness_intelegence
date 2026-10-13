@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Download, Upload } from "lucide-react";
 
 import { ImportWizard } from "@/components/panels/import-wizard";
+import { RingkasanOperasional } from "@/components/panels/modul-analitik";
 import { KpiCard } from "@/components/ui/kpi-card";
 import {
   EmptyState,
@@ -38,9 +39,11 @@ export default function BerandaAdmin() {
   return (
     <div className="space-y-4">
       <PageHeader
-        judul="Beranda Admin"
-        keterangan="Apa yang belum diselesaikan minggu ini."
+        judul="Beranda Admin Operasional"
+        keterangan="Rangkuman anggaran, pengeluaran, penjualan, dan pengiriman, plus pekerjaan yang belum selesai minggu ini."
       />
+
+      <RingkasanOperasional dasar="/admin" />
 
       {/* --- Status minggu berjalan --- */}
       <Panel className="overflow-hidden">

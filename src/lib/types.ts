@@ -1,6 +1,6 @@
 /** Model data — mengikuti PRD.md bagian 7.2. */
 
-export type Peran = "stock" | "admin" | "owner";
+export type Peran = "logistik" | "admin" | "owner";
 
 export type KategoriBahan =
   | "beverage"
@@ -117,6 +117,63 @@ export interface LogImpor {
   status: "pending" | "applied" | "rolled_back";
   createdAt: string;
   createdBy: string;
+}
+
+// ---------------------------------------------------------------------------
+// Operasional — anggaran, pengeluaran, penggunaan bahan, pengiriman
+// (Deskripsi per fitur, fitur 3–5 dan 13–14)
+// ---------------------------------------------------------------------------
+
+export interface Cabang {
+  id: string;
+  nama: string;
+  kota: string;
+}
+
+export type KategoriAnggaran = "bahan" | "logistik";
+
+export interface Anggaran {
+  id: string;
+  /** Bulan anggaran, format YYYY-MM. */
+  periode: string;
+  cabangId: string;
+  kategori: KategoriAnggaran;
+  nominal: number;
+  catatan?: string;
+}
+
+export interface Pengeluaran {
+  id: string;
+  tanggal: string;
+  cabangId: string;
+  bahan: string;
+  qty: number;
+  satuan: string;
+  nominal: number;
+  catatan?: string;
+}
+
+export interface PenggunaanBahan {
+  id: string;
+  /** Bulan pemakaian, format YYYY-MM. */
+  periode: string;
+  cabangId: string;
+  ingredientId: string;
+  qty: number;
+}
+
+export type StatusPengiriman = "dijadwalkan" | "dikirim" | "diterima";
+
+export interface Pengiriman {
+  id: string;
+  kode: string;
+  tanggal: string;
+  cabangId: string;
+  muatan: string;
+  kurir: string;
+  biaya: number;
+  status: StatusPengiriman;
+  catatan?: string;
 }
 
 // ---------------------------------------------------------------------------

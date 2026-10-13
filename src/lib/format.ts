@@ -50,7 +50,9 @@ export function angkaRingkas(nilai: number): string {
   const abs = Math.abs(nilai);
   if (abs >= 1_000_000_000) return `${formatAngka(nilai / 1_000_000_000, 1)} M`;
   if (abs >= 1_000_000) return `${formatAngka(nilai / 1_000_000, 1)} jt`;
-  if (abs >= 1_000) return `${formatAngka(nilai / 1_000, 0)}k`;
+  // Di bawah 10 ribu, satu desimal wajib: tanpa itu 1.500 dan 2.250 sama-sama
+  // jadi "2k" dan label sumbu grafik terlihat kembar.
+  if (abs >= 1_000) return `${formatAngka(nilai / 1_000, abs < 10_000 ? 1 : 0)}k`;
   return formatAngka(nilai, 0);
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { AppShell } from "@/components/app/shell";
-import { menuTanpaResep } from "@/lib/data/queries";
+import { menuTanpaResep, risikoKadaluarsa } from "@/lib/data/queries";
 
 export default function LayoutAdmin({
   children,
@@ -9,7 +9,10 @@ export default function LayoutAdmin({
   children: React.ReactNode;
 }) {
   return (
-    <AppShell peran="admin" lencana={{ "tanpa-resep": menuTanpaResep().length }}>
+    <AppShell peran="admin" lencana={{
+        "tanpa-resep": menuTanpaResep().length,
+        kadaluarsa: risikoKadaluarsa().length,
+      }}>
       {children}
     </AppShell>
   );

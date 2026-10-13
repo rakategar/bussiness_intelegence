@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   BookOpen,
   Bell,
+  Boxes,
+  ChartLine,
   CalendarClock,
   ChevronDown,
   FileText,
@@ -17,13 +19,16 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Receipt,
+  Scale,
   Settings,
+  ShoppingBag,
   Sun,
   TrendingUp,
   Trash2,
   Truck,
   Upload,
   Users,
+  Wallet,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -50,6 +55,11 @@ const IKON = {
   FileText,
   Users,
   Settings,
+  Wallet,
+  Boxes,
+  ChartLine,
+  Scale,
+  ShoppingBag,
 } as const;
 
 function Ikon({ nama, ...rest }: { nama: string; size?: number; strokeWidth?: number; className?: string }) {
@@ -166,7 +176,7 @@ export function AppShell({
                   <p className="px-2 pb-1 pt-1 text-[11px] text-ink-faint">
                     Ganti peran (demo)
                   </p>
-                  {(["stock", "admin", "owner"] as Peran[]).map((p) => (
+                  {(["admin", "owner", "logistik"] as Peran[]).map((p) => (
                     <button
                       key={p}
                       role="menuitem"

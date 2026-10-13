@@ -78,6 +78,9 @@ ATURAN KERAS:
    jargon konsultan.
 6. Rekomendasi harus konkret dan bisa dieksekusi minggu ini —
    sebutkan menu/bahan spesifik dan angka spesifik.
+7. Tulis untuk pemilik coffee shop, bukan untuk programmer. Jangan pernah
+   menyebut nama field, kunci JSON, atau struktur data masukan (misalnya
+   "risiko_bahan", "prediksi_baseline"). Sebut isinya, bukan wadahnya.
 
 Skema keluaran:
 {
@@ -260,6 +263,17 @@ function cadanganDariBaseline(horizon: "next_week" | "next_month") {
   };
 }
 
+/** Coba lagi sekali dengan jeda pendek untuk kegagalan yang sifatnya sesaat. */
+async function panggilGeminiDenganUlangan(payload: unknown, perbaikan?: string) {
+  try {
+    return await panggilGemini(payload, perbaikan);
+  } catch (e) {
+    if (!(e as { sementara?: boolean })?.sementara) throw e;
+    await new Promise((r) => setTimeout(r, 1200));
+    return panggilGemini(payload, perbaikan);
+  }
+}
+
 async function panggilGemini(payload: unknown, perbaikan?: string) {
   const kunci = process.env.GEMINI_API_KEY;
   if (!kunci) throw new Error("GEMINI_API_KEY belum diatur di server.");
@@ -300,7 +314,12 @@ async function panggilGemini(payload: unknown, perbaikan?: string) {
 
     if (!res.ok) {
       const teks = await res.text();
-      throw new Error(`Gemini menolak permintaan (${res.status}): ${teks.slice(0, 180)}`);
+      const galat = new Error(
+        `Gemini menolak permintaan (${res.status}): ${teks.slice(0, 180)}`,
+      ) as Error & { sementara?: boolean };
+      // 429/500/503 biasanya cuma antrean penuh sesaat, bukan permintaan salah.
+      galat.sementara = res.status === 429 || res.status >= 500;
+      throw galat;
     }
 
     const data = await res.json();
@@ -379,12 +398,12 @@ export async function POST(req: Request) {
   pemakaianHariIni.jumlah++;
 
   try {
-    let mentah = await panggilGemini(payload);
+    let mentah = await panggilGeminiDenganUlangan(payload);
     let hasil = SkemaKeluaran.safeParse(mentah);
 
     // Sekali percobaan ulang dengan instruksi perbaikan.
     if (!hasil.success) {
-      mentah = await panggilGemini(
+      mentah = await panggilGeminiDenganUlangan(
         payload,
         "Jawaban sebelumnya tidak sesuai skema. Balas ULANG hanya dengan JSON valid persis mengikuti skema di instruksi sistem, tanpa markdown.",
       );
