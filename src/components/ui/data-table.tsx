@@ -94,7 +94,15 @@ export function DataTable<T>({
     return hasil;
   }, [data, kueri, urutan, kolom, cari]);
 
-  React.useEffect(() => setHalaman(0), [kueri, urutan, data]);
+  // Balik ke halaman pertama saat pencarian, urutan, atau datanya berganti.
+  // Penyesuaian dilakukan saat render, bukan lewat efek — pola yang
+  // direkomendasikan React untuk state turunan.
+  const tanda = `${kueri}|${urutan?.kunci ?? ""}|${urutan?.arah ?? ""}|${data.length}`;
+  const [tandaSebelumnya, setTandaSebelumnya] = React.useState(tanda);
+  if (tanda !== tandaSebelumnya) {
+    setTandaSebelumnya(tanda);
+    setHalaman(0);
+  }
 
   const totalHalaman = Math.max(1, Math.ceil(tersaring.length / perHalaman));
   const halamanAman = Math.min(halaman, totalHalaman - 1);
@@ -185,6 +193,15 @@ export function DataTable<T>({
                       <th
                         key={k.kunci}
                         scope="col"
+                        aria-sort={
+                          !k.urut
+                            ? undefined
+                            : aktif
+                              ? urutan.arah === "asc"
+                                ? "ascending"
+                                : "descending"
+                              : "none"
+                        }
                         style={k.lebar ? { width: k.lebar } : undefined}
                         className={cn(
                           "border-b border-line bg-panel-sunken px-3 py-2 text-[12px] font-medium text-ink-muted",
@@ -199,13 +216,6 @@ export function DataTable<T>({
                               "inline-flex items-center gap-1 transition-colors hover:text-ink",
                               aktif && "text-ink",
                             )}
-                            aria-sort={
-                              aktif
-                                ? urutan.arah === "asc"
-                                  ? "ascending"
-                                  : "descending"
-                                : "none"
-                            }
                           >
                             {k.judul}
                             <span

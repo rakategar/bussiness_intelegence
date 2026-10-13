@@ -63,33 +63,42 @@ export function PanelAi({
   const [memuat, setMemuat] = React.useState(true);
   const [galat, setGalat] = React.useState<string | null>(null);
   const [dibuat, setDibuat] = React.useState<Date | null>(null);
+  // Naikkan penghitung ini untuk memaksa panggilan baru (tombol muat ulang).
+  const [muatKe, setMuatKe] = React.useState(0);
 
-  const ambil = React.useCallback(
-    async (paksa = false) => {
-      setMemuat(true);
-      setGalat(null);
+  React.useEffect(() => {
+    let batal = false;
+
+    (async () => {
       try {
         const res = await fetch("/api/analisis-ai", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ horizon, paksa }),
+          body: JSON.stringify({ horizon, paksa: muatKe > 0 }),
         });
         const data = await res.json();
+        if (batal) return;
         if (!res.ok) throw new Error(data?.pesan ?? "Permintaan ditolak.");
         setHasil(data);
         setDibuat(new Date(data.dibuat_pada ?? Date.now()));
+        setGalat(null);
       } catch (e) {
+        if (batal) return;
         setGalat(e instanceof Error ? e.message : "Gagal memanggil analisis.");
       } finally {
-        setMemuat(false);
+        if (!batal) setMemuat(false);
       }
-    },
-    [horizon],
-  );
+    })();
 
-  React.useEffect(() => {
-    void ambil();
-  }, [ambil]);
+    return () => {
+      batal = true;
+    };
+  }, [horizon, muatKe]);
+
+  const muatUlang = () => {
+    setMemuat(true);
+    setMuatKe((n) => n + 1);
+  };
 
   return (
     <section
@@ -107,7 +116,7 @@ export function PanelAi({
           {dibuat ? `Dibuat ${formatTanggalWaktu(dibuat)}` : "Menyiapkan…"}
         </span>
         <button
-          onClick={() => ambil(true)}
+          onClick={muatUlang}
           disabled={memuat}
           className="ml-auto flex h-7 items-center gap-1.5 rounded-input border border-line px-2 text-[12px] text-ink-muted transition-colors hover:border-line-strong hover:text-ink disabled:opacity-50"
         >
@@ -146,7 +155,7 @@ export function PanelAi({
               <Tombol
                 ukuran="sm"
                 className="mt-2.5"
-                onClick={() => ambil(true)}
+                onClick={muatUlang}
               >
                 Coba muat ulang
               </Tombol>

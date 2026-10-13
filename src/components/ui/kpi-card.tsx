@@ -3,11 +3,12 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { formatAngka, formatPoinPersen } from "@/lib/format";
+import { useGerakBerkurang } from "@/lib/hooks";
 import { Skeleton } from "./primitives";
 
 /**
  * Angka bergulir 400ms saat nilai berubah (DESIGN.md bagian 5).
- * Hormati prefers-reduced-motion: langsung ke nilai akhir.
+ * Kalau pengguna minta gerak dikurangi, angka langsung lompat ke nilai akhir.
  */
 export function AngkaBergulir({
   nilai,
@@ -20,44 +21,39 @@ export function AngkaBergulir({
   durasi?: number;
   className?: string;
 }) {
+  const kurangiGerak = useGerakBerkurang();
   const [tampil, setTampil] = React.useState(nilai);
   const dariRef = React.useRef(nilai);
-  const rafRef = React.useRef<number | undefined>(undefined);
 
   React.useEffect(() => {
-    const kurangiGerak =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     if (kurangiGerak) {
       dariRef.current = nilai;
-      setTampil(nilai);
       return;
     }
 
     const dari = dariRef.current;
+    if (dari === nilai) return;
+
     const mulai = performance.now();
+    let raf = 0;
 
     const langkah = (t: number) => {
       const p = Math.min(1, (t - mulai) / durasi);
       // easeOutCubic — cepat di awal, mendarat halus
       const e = 1 - Math.pow(1 - p, 3);
       setTampil(dari + (nilai - dari) * e);
-      if (p < 1) {
-        rafRef.current = requestAnimationFrame(langkah);
-      } else {
-        dariRef.current = nilai;
-      }
+      if (p < 1) raf = requestAnimationFrame(langkah);
+      else dariRef.current = nilai;
     };
 
-    rafRef.current = requestAnimationFrame(langkah);
+    raf = requestAnimationFrame(langkah);
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      cancelAnimationFrame(raf);
       dariRef.current = nilai;
     };
-  }, [nilai, durasi]);
+  }, [nilai, durasi, kurangiGerak]);
 
-  return <span className={className}>{format(tampil)}</span>;
+  return <span className={className}>{format(kurangiGerak ? nilai : tampil)}</span>;
 }
 
 export function Delta({

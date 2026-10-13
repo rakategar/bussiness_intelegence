@@ -17,7 +17,6 @@ import {
   penilaianMinggu,
   pnlMingguan,
   profitabilitas,
-  rentangMingguKe,
   ringkasan,
   totalNilaiRisiko,
   totalNilaiStok,

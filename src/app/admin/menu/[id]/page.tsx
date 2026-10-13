@@ -14,7 +14,6 @@ import {
   Panel,
   PanelHeader,
   Pilihan,
-  Rupiah,
   Tombol,
 } from "@/components/ui/primitives";
 import { AngkaBergulir } from "@/components/ui/kpi-card";

@@ -9,7 +9,6 @@ import {
   Isian,
   Label,
   PageHeader,
-  Panel,
   Pilihan,
   Rupiah,
   Tombol,

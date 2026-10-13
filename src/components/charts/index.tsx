@@ -38,21 +38,10 @@ import {
 } from "@/lib/status";
 import type { KategoriMenu, ProfitabilitasMenu } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useGerakBerkurang } from "@/lib/hooks";
 import { GAYA_SUMBU, TooltipKustom } from "./chart-frame";
 
 const DURASI = 700;
-
-function pakaiGerakBerkurang() {
-  const [kurangi, setKurangi] = React.useState(false);
-  React.useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setKurangi(mq.matches);
-    const ubah = () => setKurangi(mq.matches);
-    mq.addEventListener("change", ubah);
-    return () => mq.removeEventListener("change", ubah);
-  }, []);
-  return kurangi;
-}
 
 /* ==========================================================================
    Garis: Pendapatan vs HPP
@@ -63,7 +52,7 @@ export function GrafikPendapatanHpp({
 }: {
   data: { labelMinggu: string; pendapatan: number; hpp: number }[];
 }) {
-  const kurangi = pakaiGerakBerkurang();
+  const kurangi = useGerakBerkurang();
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data} margin={{ top: 6, right: 8, bottom: 0, left: -8 }}>
@@ -141,7 +130,7 @@ export function GrafikDonatKategori({
 }: {
   data: { kategori: string; nilai: number }[];
 }) {
-  const kurangi = pakaiGerakBerkurang();
+  const kurangi = useGerakBerkurang();
   const total = data.reduce((t, d) => t + d.nilai, 0);
   const [aktif, setAktif] = React.useState<number | null>(null);
 
@@ -260,7 +249,7 @@ export function GrafikBatangHorizontal({
   formatNilai?: (v: number) => string;
   lebarLabel?: number;
 }) {
-  const kurangi = pakaiGerakBerkurang();
+  const kurangi = useGerakBerkurang();
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
@@ -330,7 +319,7 @@ export function GrafikBatang({
   formatNilai?: (v: number) => string;
   namaSeri?: string;
 }) {
-  const kurangi = pakaiGerakBerkurang();
+  const kurangi = useGerakBerkurang();
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} margin={{ top: 6, right: 8, bottom: 0, left: -10 }}>
@@ -398,7 +387,7 @@ export function MatriksKuadran({
   medianMargin: number;
   onKlikMenu?: (menuId: string) => void;
 }) {
-  const kurangi = pakaiGerakBerkurang();
+  const kurangi = useGerakBerkurang();
 
   const titik = data
     .filter((d) => d.punyaResep && d.qtyTerjual > 0)
@@ -568,7 +557,7 @@ export function GrafikProyeksi({
     atas: number | null;
   }[];
 }) {
-  const kurangi = pakaiGerakBerkurang();
+  const kurangi = useGerakBerkurang();
 
   // Recharts menggambar area dari `bawah` setinggi `rentang`.
   const siap = data.map((d) => ({
@@ -680,7 +669,7 @@ export function GrafikHppBertumpuk({
 }: {
   data: { nama: string; subtotal: number }[];
 }) {
-  const kurangi = pakaiGerakBerkurang();
+  const kurangi = useGerakBerkurang();
   const total = data.reduce((t, d) => t + d.subtotal, 0);
   // Maksimal 6 seri; sisanya digabung jadi "Lainnya".
   const utama = data.slice(0, 6);
@@ -768,7 +757,7 @@ export function Sparkline({
   data: { label: string; qty: number }[];
   warna?: string;
 }) {
-  const kurangi = pakaiGerakBerkurang();
+  const kurangi = useGerakBerkurang();
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} margin={{ top: 4, right: 0, bottom: 0, left: -20 }}>

@@ -13,7 +13,7 @@ import {
   PanelHeader,
   Tombol,
 } from "@/components/ui/primitives";
-import { hppMenu, menuTanpaResep } from "@/lib/data/queries";
+import { menuTanpaResep } from "@/lib/data/queries";
 import { imporLog, menu } from "@/lib/data/seed";
 import { HARI_INI } from "@/lib/data/seed";
 import { unduhTemplate } from "@/lib/import/parser";

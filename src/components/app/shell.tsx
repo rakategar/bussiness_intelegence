@@ -34,6 +34,7 @@ import { BERANDA_PERAN, useSesi } from "./session";
 import { NAV, WARNA_REL, type ItemNav } from "./nav";
 import type { Peran } from "@/lib/types";
 import { Notifikasi } from "./notifikasi";
+import { tulisLokal, useNilaiLokal } from "@/lib/hooks";
 
 const IKON = {
   LayoutDashboard,
@@ -350,30 +351,13 @@ function apakahAktif(pathname: string, href: string) {
 }
 
 function TombolTema() {
-  const [gelap, setGelap] = React.useState(false);
-
-  React.useEffect(() => {
-    const tersimpan =
-      typeof window !== "undefined"
-        ? window.localStorage.getItem("dashboard-bi.tema")
-        : null;
-    const aktif = tersimpan === "dark";
-    setGelap(aktif);
-    document.documentElement.dataset.theme = aktif ? "dark" : "light";
-  }, []);
+  const tersimpan = useNilaiLokal("dashboard-bi.tema");
+  const gelap = tersimpan === "dark";
 
   const ubah = () => {
-    const berikutnya = !gelap;
-    setGelap(berikutnya);
-    document.documentElement.dataset.theme = berikutnya ? "dark" : "light";
-    try {
-      window.localStorage.setItem(
-        "dashboard-bi.tema",
-        berikutnya ? "dark" : "light",
-      );
-    } catch {
-      /* abaikan */
-    }
+    const berikutnya = gelap ? "light" : "dark";
+    document.documentElement.dataset.theme = berikutnya;
+    tulisLokal("dashboard-bi.tema", berikutnya);
   };
 
   return (

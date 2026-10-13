@@ -14,7 +14,6 @@ import {
   PanelHeader,
   Rupiah,
   Tabs,
-  Tombol,
 } from "@/components/ui/primitives";
 import { hitungBaseline, seriProyeksi } from "@/lib/forecast";
 import { profitabilitas, rentangMingguKe } from "@/lib/data/queries";
@@ -24,7 +23,6 @@ import {
   formatPersen,
   formatQty,
   formatRentang,
-  formatRupiah,
 } from "@/lib/format";
 import type { KebutuhanBahan } from "@/lib/types";
 import { cn } from "@/lib/utils";
